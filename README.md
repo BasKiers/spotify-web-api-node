@@ -62,6 +62,12 @@ It includes helper functions to do the following:
  - Get a user's available devices
  - Get information about the user's current playback
  - Transfer a user's playback
+ - Start/Resume a user's playback
+ - Pause a user's playback
+ - Skip a user's playback to next track
+ - Skip a user's playback to previous track
+ - Seek to position in the currently playing track of user's playback
+ - Set volume for user's playback
 
 Some methods require authentication, which can be done using these flows:
 

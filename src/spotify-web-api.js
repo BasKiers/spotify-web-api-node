@@ -1641,7 +1641,9 @@ SpotifyWebApi.prototype = {
 
   /**
    * Transfer a User's Playback
-   * @param {Object} [options] Options, being market.
+   * @param {Object} [options] Options.
+   * @param {string} [options.device_id] The id of the target device, if not set this method is performed on the currently active device.
+   * @param {boolean} [options.play] If the track should start playing immediately.
    * @param {requestCallback} [callback] Optional callback method to be called instead of the promise.
    * @returns {Promise|undefined} A promise that if successful, resolves into a paging object of tracks,
    *          otherwise an error. Not returned if a callback is given.
@@ -1672,7 +1674,212 @@ SpotifyWebApi.prototype = {
     }
   },
 
-  /**
+
+	/**
+	 * Start/Resume a User's Playback
+	 * @param {Object} options Options.
+	 * @param {string} [options.device_id] The id of the target device, if not set this method is performed on the currently active device.
+	 * @param {string} [options.context_uri] The spotify uri to play. This cannot be a track uri
+	 * @param {string[]} [options.uris] Array of spotify track uri's to play. It is required to provide context_uri or uris, never both.
+	 * @param {number|string} [options.offset] Offset is a number or spotify track uri where playback should start.
+	 * @param {requestCallback} [callback] Optional callback method to be called instead of the promise.
+	 * @returns {Promise|undefined} A promise that if successful, resolves into a booolean true value,
+	 *          otherwise an error. Not returned if a callback is given.
+	 */
+	startMyPlayback: function(options, callback) {
+		var request = WebApiRequest.builder()
+			.withPath('/v1/me/player/play')
+			.withHeaders({ 'Content-Type' : 'application/json' })
+			.withQueryParamters({
+				'device_id': options.deviceId || undefined,
+			})
+			.withBodyParameters({
+				'context_uri': options.contextUri || undefined,
+				'uris': options.uris || undefined,
+				'offset': options.offset || undefined
+			})
+			.build();
+
+		this._addAccessToken(request, this.getAccessToken());
+
+		var promise = this._performRequest(HttpManager.put, request);
+
+		if (callback) {
+			promise.then(function(data) {
+				callback(null, true);
+			}, function(err) {
+				callback(err);
+			});
+		} else {
+			return promise;
+		}
+	},
+
+	/**
+	 * Pause a User's Playback
+	 * @param {Object} [options] Options.
+	 * @param {string} [options.device_id] The id of the target device, if not set this method is performed on the currently active device.
+	 * @param {requestCallback} [callback] Optional callback method to be called instead of the promise.
+	 * @returns {Promise|undefined} A promise that if successful, resolves into a booolean true value,
+	 *          otherwise an error. Not returned if a callback is given.
+	 */
+	pauseMyPlayback: function(options, callback) {
+		var request = WebApiRequest.builder()
+			.withPath('/v1/me/player/pause')
+			.withHeaders({ 'Content-Type' : 'application/json' })
+			.withQueryParameters({
+				'device_id': (options || {}).deviceId || undefined,
+			})
+			.build();
+
+		this._addAccessToken(request, this.getAccessToken());
+
+		var promise = this._performRequest(HttpManager.put, request);
+
+		if (callback) {
+			promise.then(function(data) {
+				callback(null, true);
+			}, function(err) {
+				callback(err);
+			});
+		} else {
+			return promise;
+		}
+	},
+
+	/**
+	 * Skip a User's Playback to Next Track
+	 * @param {Object} [options] Options.
+	 * @param {string} [options.device_id] The id of the target device, if not set this method is performed on the currently active device.
+	 * @param {requestCallback} [callback] Optional callback method to be called instead of the promise.
+	 * @returns {Promise|undefined} A promise that if successful, resolves into a booolean true value,
+	 *          otherwise an error. Not returned if a callback is given.
+	 */
+	skipPlaybackNext: function(options, callback) {
+		var request = WebApiRequest.builder()
+			.withPath('/v1/me/player/next')
+			.withHeaders({ 'Content-Type' : 'application/json' })
+			.withQueryParameters({
+				'device_id': (options || {}).deviceId || undefined,
+			})
+			.build();
+
+		this._addAccessToken(request, this.getAccessToken());
+
+		var promise = this._performRequest(HttpManager.put, request);
+
+		if (callback) {
+			promise.then(function(data) {
+				callback(null, true);
+			}, function(err) {
+				callback(err);
+			});
+		} else {
+			return promise;
+		}
+	},
+
+	/**
+	 * Skip a User's Playback to Previous Track
+	 * @param {Object} [options] Options.
+	 * @param {string} [options.device_id] The id of the target device, if not set this method is performed on the currently active device.
+	 * @param {requestCallback} [callback] Optional callback method to be called instead of the promise.
+	 * @returns {Promise|undefined} A promise that if successful, resolves into a booolean true value,
+	 *          otherwise an error. Not returned if a callback is given.
+	 */
+	skipMyPlaybackPrevious: function(options, callback) {
+		var request = WebApiRequest.builder()
+			.withPath('/v1/me/player/previous')
+			.withHeaders({ 'Content-Type' : 'application/json' })
+			.withQueryParameters({
+				'device_id': (options || {}).deviceId || undefined,
+			})
+			.build();
+
+		this._addAccessToken(request, this.getAccessToken());
+
+		var promise = this._performRequest(HttpManager.put, request);
+
+		if (callback) {
+			promise.then(function(data) {
+				callback(null, true);
+			}, function(err) {
+				callback(err);
+			});
+		} else {
+			return promise;
+		}
+	},
+
+	/**
+	 * Seek to Position in the Currently Playing Track of User's Playback
+	 * @param {Object} options Options.
+	 * @param {string} [options.device_id] The id of the target device, if not set this method is performed on the currently active device.
+	 * @param {number} options.position_ms The volume level between 0 and 100
+	 * @param {requestCallback} [callback] Optional callback method to be called instead of the promise.
+	 * @returns {Promise|undefined} A promise that if successful, resolves into a booolean true value,
+	 *          otherwise an error. Not returned if a callback is given.
+	 */
+	seekMyPlayback: function(options, callback) {
+		var request = WebApiRequest.builder()
+			.withPath('/v1/me/player/seek')
+			.withHeaders({ 'Content-Type' : 'application/json' })
+			.withQueryParameters({
+				'device_id': options.device_id || undefined,
+				'position_ms': options.position_ms || 0,
+			})
+			.build();
+
+		this._addAccessToken(request, this.getAccessToken());
+
+		var promise = this._performRequest(HttpManager.put, request);
+
+		if (callback) {
+			promise.then(function(data) {
+				callback(null, true);
+			}, function(err) {
+				callback(err);
+			});
+		} else {
+			return promise;
+		}
+	},
+
+	/**
+	 * Set Volume for User's Playback
+	 * @param {Object} options Options.
+	 * @param {string} [options.device_id] The id of the target device, if not set this method is performed on the currently active device.
+	 * @param {number} options.volume_percent The volume level between 0 and 100
+	 * @param {requestCallback} [callback] Optional callback method to be called instead of the promise.
+	 * @returns {Promise|undefined} A promise that if successful, resolves into a booolean true value,
+	 *          otherwise an error. Not returned if a callback is given.
+	 */
+	setMyPlaybackVolume: function(options, callback) {
+		var request = WebApiRequest.builder()
+			.withPath('/v1/me/player/volume')
+			.withHeaders({ 'Content-Type' : 'application/json' })
+			.withQueryParameters({
+				'device_id': options.device_id || undefined,
+				'volume_percent': options.volume_percent || 0,
+			})
+			.build();
+
+		this._addAccessToken(request, this.getAccessToken());
+
+		var promise = this._performRequest(HttpManager.put, request);
+
+		if (callback) {
+			promise.then(function(data) {
+				callback(null, true);
+			}, function(err) {
+				callback(err);
+			});
+		} else {
+			return promise;
+		}
+	},
+
+	/**
    * Add the current user as a follower of one or more other Spotify users.
    * @param {string[]} userIds The IDs of the users to be followed.
    * @param {requestCallback} [callback] Optional callback method to be called instead of the promise.
